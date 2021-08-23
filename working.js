@@ -32,10 +32,9 @@ if (language == "en-US"){
 
 // Enlarge Map
 var container = this.getComponentByName('CampusMap');
-var currentHeight = 282;
-var currentWidth = 550;
+var currentHeight = mapDefaultHeight;
+var currentWidth = mapDefaultWidth;
 var screenRatio = window.innerWidth / window.innerHeight;
-var vSpeed =80;
 var hSpeed = vSpeed * screenRatio;
 
 var hInter = setInterval(function(){
@@ -55,35 +54,110 @@ var vInter = setInterval(function(){
 
 this.getComponentByName('ExpandMap').set('visible', false);
 this.getComponentByName('ShrinkMap').set('visible', true);
-this.getComponentByName('MapBackground').set('visible', true); 
+this.getComponentByName('MapBackground').set('visible', true);
 
 // Shrink Map
 var container = this.getComponentByName('CampusMap');
 var currentHeight = window.innerHeight;
 var currentWidth = window.innerWidth;
 var screenRatio = window.innerWidth / window.innerHeight;
-var vSpeed = 80;
 var hSpeed = vSpeed * screenRatio;
 
 var hInter = setInterval(function(){
     currentWidth = currentWidth - hSpeed;
     container.set('width', currentWidth);
-    if (currentWidth <= 550) { clearInterval (hInter);
-    container.set('width', 550);}
+    if (currentWidth <= mapDefaultWidth) { clearInterval (hInter);
+    container.set('width', mapDefaultWidth);}
 
 } ,1);
 
 var vInter = setInterval(function(){
     currentHeight = currentHeight - vSpeed;
     container.set('height', currentHeight);
-    if (currentHeight < 282) { clearInterval (vInter);
-    container.set('height', 282);}
+    if (currentHeight < mapDefaultHeight) { clearInterval (vInter);
+    container.set('height', mapDefaultHeight);}
 } ,1);
 
 this.getComponentByName('ExpandMap').set('visible', true);
 this.getComponentByName('MapBackground').set('visible', false); 
 
 
+//Shrink Map on Pano Change
+var container = this.getComponentByName('CampusMap');
+var containerWidth = container.get('width');
+if (containerWidth < mapDefaultWidth){
+    var currentHeight = window.innerHeight;
+    var currentWidth = window.innerWidth;
+    var screenRatio = window.innerWidth / window.innerHeight;
+    var hSpeed = vSpeed * screenRatio;
+
+    var hInter = setInterval(function(){
+        currentWidth = currentWidth - hSpeed;
+        container.set('width', currentWidth);
+        if (currentWidth <= 0) { clearInterval (hInter);}
+    } ,1);
+
+    var vInter = setInterval(function(){
+        currentHeight = currentHeight - vSpeed;
+        container.set('height', currentHeight);
+        if (currentHeight <= 0) { clearInterval (vInter);
+        container.set('visible', false);
+        mapVisible = false;
+        container.set('height', mapDefaultHeight);
+        container.set('width', mapDefaultWidth);}
+    } ,1);
+}else{
+    if (containerWidth > mapDefaultWidth){
+        var currentHeight = window.innerHeight;
+        var currentWidth = window.innerWidth;
+        var screenRatio = window.innerWidth / window.innerHeight;
+        var hSpeed = vSpeed * screenRatio;
+    
+        var hInter = setInterval(function(){
+            currentWidth = currentWidth - hSpeed;
+            container.set('width', currentWidth);
+            if (currentWidth <= mapDefaultWidth) { clearInterval (hInter);
+            container.set('width', mapDefaultWidth);}
+    
+        } ,1);
+    
+        var vInter = setInterval(function(){
+            currentHeight = currentHeight - vSpeed;
+            container.set('height', currentHeight);
+            if (currentHeight < mapDefaultHeight) { clearInterval (vInter);
+            container.set('height', mapDefaultHeight);}
+        } ,1);
+    
+        this.getComponentByName('ExpandMap').set('visible', true);
+        this.getComponentByName('MapBackground').set('visible', false); 
+    }else{
+    
+    }
+}
+
+//Map Button
+var container = this.getComponentByName('CampusMap');
+var containerWidth = container.get('width');
+var containerHeight = container.get('height');
+
+if (containerWidth > window.innerWidth){
+    container.set('width', window.innerWidth);
+    container.set('height', window.innerHeight);
+    this.getComponentByName('MapBackground').set('visible', true);
+    this.getComponentByName('ExpandMap').set('visible', false);
+    this.getComponentByName('ShrinkMap').set('visible', false);
+}else{
+    if (containerWidth == mapDefaultWidth){
+      this.getComponentByName('ExpandMap').set('visible', true);
+      this.getComponentByName('MapBackground').set('visible', false)
+   }else{
+       this.getComponentByName('ShrinkMap').set('visible', true);
+       this.getComponentByName('MapBackground').set('visible', true)
+   }
+   
+}
+
+// M Key to Show/Hide Map
 if (event.code == "KeyM") {
     if (mapVisible == false){
     this.getComponentByName('CampusMap').set('visible', true);
@@ -94,121 +168,40 @@ if (event.code == "KeyM") {
     }
 }
 
+// Custom Startup Code
+window.addEventListener('load', customStuff);
 
-var currentSlide = this.mainPlayList.get('selectedIndex');
-window.blazeIT.getHotspots().map(hotspot => {
-const data = hotspot.get("data");
-        if (!data) {
-        return "Unknown name";
+function customStuff() {
+    mapDefaultHeight = 463;
+    mapDefaultWidth = 900;
+    vSpeed = 80;
+    mapVisible = false;
+    var s = document.createElement("script"); 
+    s.src = "http://code.jquery.com/jquery-latest.min.js"; 
+    s.onload = function(e){ /* now that its loaded, do something */ };  
+    document.head.appendChild(s);  
+}
+
+
+
+var x = setInterval(function(){ 
+	if(typeof jQuery !== 'undefined'){ 
+		console.log("jQuery Imported")
+	} 
+}, 50);  
+
+
+
+// Delay Function
+function timeFunction() {
+    setTimeout(function(){ 
+        if (containerWidth >= mapDefaultWidth){
+        }else{
+            container.set('width', mapDefaultWidth);
+            container.set('height', mapDefaultHeight);
         }
-        return hotspot.get("data").label;
-        });
-
-var currentSlide = this.mainPlayList.get('selectedIndex');
-console.log(currentSlide);
-
-
-window.blazeIT.getHotspots().map(hotspot => {
-    const data = hotspot.get("data");
-    if (!data) {
-    return "Unknown name";
-    }
-    return hotspot.get("data").label;
-    });
-
-
-
-    focusMethod = function getFocus() {
-    var container = this.getComponentByName('CampusMap');
-    container.focus();
-      }
-
-
-function test(){
-    var testWindow = this.getComponentByName('Menu');
-    console.log(testWindow);
+    }, 5000);
 }
-
-
-
-
-// Map Functionality
-
-var container = this.getComponentByName('CampusMap');
-var containerWidth = container.get('width');
-var currentHeight = window.innerHeight;
-var currentWidth = window.innerWidth;
-var screenRatio = window.innerWidth / window.innerHeight;
-var defaultMapHeight = 384;
-var defaultMapWidth = 750;
-var vSpeed = 80;
-var hSpeed = vSpeed * screenRatio;
-
-
-function shrinkMapOnPanoChange(){
-    if (containerWidth > defaultMapWidth){
-    var hInter = setInterval(function(){
-        currentWidth = currentWidth - hSpeed;
-        container.set('width', currentWidth);
-        if (currentWidth <= defaultMapWidth) { clearInterval (hInter);
-        container.set('width', defaultMapWidth);}
-
-    } ,1);
-
-    var vInter = setInterval(function(){
-        currentHeight = currentHeight - vSpeed;
-        container.set('height', currentHeight);
-        if (currentHeight < defaultMapHeight) { clearInterval (vInter);
-        container.set('height', defaultMapHeight);}
-    } ,1);
-
-    this.getComponentByName('ExpandMap').set('visible', true);
-    this.getComponentByName('MapBackground').set('visible', false); 
-    }else{
-
-    }
-}
-
-function enlargeMap(){
-    var currentHeight = defaultMapHeight;
-    var currentWidth = defaultMapWidth;
-
-    var hInter = setInterval(function(){
-        currentWidth = currentWidth + hSpeed;
-        container.set('width', currentWidth);
-        if (currentWidth >= window.innerWidth) { clearInterval (hInter);
-        container.set('width', window.innerWidth);}
-
-    } ,1);
-
-    var vInter = setInterval(function(){
-        currentHeight = currentHeight + vSpeed;
-        container.set('height', currentHeight);
-        if (currentHeight >= window.innerHeight) { clearInterval (vInter);
-        container.set('height', window.innerHeight);}
-    } ,1);
-
-    this.getComponentByName('ExpandMap').set('visible', false);
-    this.getComponentByName('ShrinkMap').set('visible', true);
-    this.getComponentByName('MapBackground').set('visible', true); 
-}
-
-function shrinkMap(){
-    var hInter = setInterval(function(){
-        currentWidth = currentWidth - hSpeed;
-        container.set('width', currentWidth);
-        if (currentWidth <= 550) { clearInterval (hInter);
-        container.set('width', 550);}
-    
-    } ,1);
-    
-    var vInter = setInterval(function(){
-        currentHeight = currentHeight - vSpeed;
-        container.set('height', currentHeight);
-        if (currentHeight < 282) { clearInterval (vInter);
-        container.set('height', 282);}
-    } ,1);
-    
-    this.getComponentByName('ExpandMap').set('visible', true);
-    this.getComponentByName('MapBackground').set('visible', false); 
-}
+this.getComponentByName('ShrinkMap').set('visible', false);
+this.getComponentByName('MapBackground').set('visible', false);
+timeFunction();
